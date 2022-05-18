@@ -1,0 +1,142 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Beamforming Theory</title>
+  <metadata><md:content-id>undefined</md:content-id><md:title/><md:uuid>8b915a1a-c052-4884-8f4b-ba06bb298a22</md:uuid>
+</metadata>
+
+  <content>
+    
+      <figure id="f1">
+	<title>The Geometry</title>
+	<media id="idm2281824" alt=""><image src="../../media/figure4.jpg" mime-type="image/jpeg"/></media>
+      </figure>
+
+    <para id="p1">
+      We used delay-and-sum beamforming in order to determine the
+      direction of origin for our 500 Hz test signal.  Beamforming
+      takes advantage of the fact that the distance from the source to
+      each microphone in the array is different, which means that the
+      signal recorded by each microphone will be phase-shifted
+      replicas of each other.  The amount of phase-shift at each
+      microphone in the array can be calculated by thinking about the
+      geometry of the situation, shown in <link target-id="f1"/>.  In our
+      case, we are assuming that the source is in the far-field, which
+      means that the source is far enough away that its spherical
+      wavefront appears planar at our array.  The geometry is much
+      simplier with that assumption, and <link target-id="e1"/> shows the
+      calculation for the extra time it takes to reach each microphone
+      in the array relative to the array center.  <link target-id="f2"/>
+      shows an example of the out of phase signals that might be
+      recorded by a three microphone array.
+      <equation id="e1">
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:ci><m:msub>
+		<m:mi>Δ</m:mi>
+		<m:mi>m</m:mi>
+	      </m:msub></m:ci>
+	    <m:apply>
+	      <m:divide/>
+	      <m:apply>
+		<m:times/>
+		<m:ci><m:msub>
+		    <m:mi>x</m:mi>
+		    <m:mi>m</m:mi>
+		  </m:msub></m:ci>
+		<m:apply>
+		  <m:cos/>
+		  <m:ci>θ</m:ci>
+		</m:apply>
+	      </m:apply>
+	      <m:ci>c</m:ci>
+	    </m:apply>
+	  </m:apply>
+	</m:math>
+      </equation>
+      <figure id="f2">
+	<title>Out of Phase Signals As Seen by a 3-Microphone Array</title>
+	<media id="idm8286144" alt=""><image src="../../media/figure2.jpg" mime-type="image/jpeg"/></media>
+      </figure>
+    </para>
+    <para id="p2">
+      In order to determine the direction of origin of a signal, we
+      have to add a time delay to the recorded signal from microphone
+      that is equal and opposite of the delay caused by the extra
+      travel time.  That will result in signals that are perfectly
+      in-phase with each other.  Summing these in-phase signals will
+      result in constructive interference that will amplify the result
+      by the number of microphones in the array.  The question is how
+      to know what time delay to add that will produce the desired
+      constructive interference.  The only solution is to iteritively
+      test time delays for all possible directions.  If the guess is
+      wrong, the signal will destructively interfere resulting in an
+      diminished output signal, but the correct guess will result in
+      the signal amplification described above.
+    </para>
+    <figure id="f3">
+      <media id="idm7917024" alt=""><image src="../../media/figure6.jpg" mime-type="image/jpeg"/></media> 
+
+      <caption>The beampattern for a signal arrive from pi/2, as seen
+      by a two-microphone array.</caption>
+    </figure>
+    <para id="p3">
+      We can plot the resulting output amplitudes as a function of
+      test angles to produce a beampattern for the array.  A typical
+      beampattern for a signal arriving from the 
+      <m:math>
+	<m:apply>
+	  <m:divide/>
+	  <m:pi/>
+	  <m:cn>2</m:cn>
+	</m:apply>
+      </m:math> direction is shown in <link target-id="f3"/> for a two
+      microphone array.  Naturally, the peak is located at <m:math>
+	<m:apply>
+	  <m:divide/>
+	  <m:pi/>
+	  <m:cn>2</m:cn>
+	</m:apply>
+      </m:math> because time delays from that region produced the most
+      constructive interference.  Test values further from the true
+      angle resulted in diminished output signals.  If the source
+      originates from a different direction, such as <m:math>
+	<m:apply>
+	  <m:divide/>
+	  <m:pi/>
+	  <m:cn>3</m:cn>
+	</m:apply>
+      </m:math> as shown in <link target-id="f4"/>, the peak moves to the
+      new location.
+    </para>
+    <figure id="f4">
+      <media id="idm2252528" alt=""><image src="../../media/figure10.jpg" mime-type="image/jpeg"/></media> 
+
+      <caption>The comparison of a beampattern for a two-microphone
+      array when at pi/3.</caption>
+    </figure>
+    <para id="p4">
+      The peak width is partially determined by the spacing of the
+      microphones in the array.  <link target-id="f5"/> shows that as the
+      spacing is increased, the peak width decreases.  That trend will
+      continue until the array length reaches the optimal length for
+      the source frequency used.  This length is half the wavelength
+      of the source signal as shown in the <link document="">Design
+      Decisions</link> section.
+    </para>
+    <figure id="f5">
+      <media id="idm9463904" alt=""><image src="../../media/figure7.jpg" mime-type="image/jpeg"/></media>
+      <caption>Beampattern with an increased array spacing.</caption>
+    </figure>
+    <para id="p5">
+      <link target-id="f6"/> shows the affect of adding more microphones
+      to the array.  The most interesting feature is the appearance of
+      side lobes in the beampattern.  However, the global peak value
+      is still located at the true origination angle.
+    </para>
+    <figure id="f6">
+      <media id="idp183248" alt=""><image src="../../media/figure8.jpg" mime-type="image/jpeg"/></media>
+      <caption>Beampattern with more microphones</caption>
+    </figure>
+  </content>
+  
+</document>

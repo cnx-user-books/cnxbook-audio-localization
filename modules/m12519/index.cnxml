@@ -1,0 +1,43 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Software Implementation of Audio Localization</title>
+  <metadata><md:content-id>undefined</md:content-id><md:title/><md:uuid>4671a184-4af5-4c33-9ada-b37e2000210f</md:uuid>
+</metadata>
+
+  <content>
+    <section id="s1">
+      <title>Code Description</title>
+      <para id="s1p1">
+	Our final implementation for the DSP board is written in C,
+	and consists of two major functions, the interrupt service
+	routine and the main function.  The samples arrive and are put
+	into a buffer for each microphone channel by the McBSP1
+	receive interrupt routine.  This function keeps track of how
+	full the buffers are, and sets a flag when they are full.  The
+	main function waits for the buffer full flag, and processes
+	the contents of the buffers when the flag is set.  The
+	algorithm is the same as the signal integration method
+	described in the <link document="">Matlab Simulation</link>
+	section.  The code keeps an average of the last 128 region
+	codes selected, which is the value that is output on the DSP
+	board's LEDs.
+      </para>
+    </section>
+    <section id="s2">
+      <title>Signal Input Options</title>
+      <para id="s2p1">
+	For our signal input, we have two options:
+	<list id="s2p1l1" list-type="enumerated">
+	  <item>Ideal Signal generated in Matlab</item>
+	  <item>Real signal from the microphone array.</item>
+	</list>
+	To thoroughly test this algorithm, we tried both options,
+	starting with the ideal signal, since this would help us in
+	debugging.  Later, we tried using a real signal, generated
+	from a computer across the room.  Unfortunately, within this
+	option lies the danger of acoustics; the answer the algorithm
+	gives us will even depend on the number of people in the room!
+      </para>
+    </section>
+  </content>
+  
+</document>

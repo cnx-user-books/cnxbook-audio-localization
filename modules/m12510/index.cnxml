@@ -1,0 +1,245 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>MATLAB Simulation of Audio Localization</title>
+  <metadata><md:content-id>undefined</md:content-id><md:title/><md:uuid>f5b5d48e-b8f4-4bf8-9964-ad6ca0dfb60c</md:uuid>
+</metadata>
+
+  <content>
+    
+    
+    <para id="s1p1">
+
+      <equation id="s1e1">
+	<m:math>
+	  <m:apply>
+	    <m:eq/>
+	    <m:apply>
+	      <m:plus/>
+	      <m:apply>
+	      <m:sin/>
+	      <m:apply>
+		<m:plus/>
+		<m:apply>
+		  <m:times/>
+		  <m:ci>ω</m:ci>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci>t</m:ci>
+		    <m:ci><m:msub>
+			<m:mi>τ</m:mi>
+			<m:mn>2</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		</m:apply>
+		<m:ci><m:msub>
+		    <m:mi>φ</m:mi>
+		    <m:mn>2</m:mn>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:apply>
+	      <m:apply>
+	      <m:sin/>
+	      <m:apply>
+		<m:plus/>
+		<m:apply>
+		  <m:times/>
+		  <m:ci>ω</m:ci>
+		  <m:apply>
+		    <m:minus/>
+		    <m:ci>t</m:ci>
+		    <m:ci><m:msub>
+			<m:mi>τ</m:mi>
+			<m:mn>1</m:mn>
+		      </m:msub></m:ci>
+		  </m:apply>
+		</m:apply>
+		<m:ci><m:msub>
+		    <m:mi>φ</m:mi>
+		    <m:mn>1</m:mn>
+		  </m:msub></m:ci>
+	      </m:apply>
+	    </m:apply>
+	    </m:apply>
+	    <m:apply>
+	      <m:times/>
+	      <m:cn>2</m:cn>
+	      <m:apply>
+		<m:sin/>
+		<m:apply>
+		  <m:plus/>
+		  <m:apply>
+		    <m:times/>
+		    <m:ci>ω</m:ci>
+		    <m:ci>t</m:ci>
+		  </m:apply>
+		  <m:apply>
+		    <m:divide/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:apply>
+			<m:plus/>
+			<m:ci><m:msub>
+			    <m:mi>φ</m:mi>
+			    <m:mn>1</m:mn>
+			  </m:msub></m:ci>
+			<m:ci><m:msub>
+			    <m:mi>φ</m:mi>
+			    <m:mn>2</m:mn>
+			  </m:msub></m:ci>
+		      </m:apply>
+		      <m:apply>
+			<m:times/>
+			<m:ci>ω</m:ci>
+			<m:apply>
+			  <m:plus/>
+			  <m:ci><m:msub>
+			      <m:mi>τ</m:mi>
+			      <m:mn>1</m:mn>
+			    </m:msub></m:ci>
+			  <m:ci><m:msub>
+			      <m:mi>τ</m:mi>
+			      <m:mn>2</m:mn>
+			    </m:msub></m:ci>
+			</m:apply>
+		      </m:apply>
+		    </m:apply>
+		    <m:cn>2</m:cn>
+		  </m:apply>
+		</m:apply>
+	      </m:apply>
+	      <m:apply>
+		<m:cos/>
+		<m:apply>
+		  <m:divide/>
+		  <m:apply>
+		    <m:minus/>
+		    <m:apply>
+		      <m:minus/>
+		      <m:ci><m:msub>
+			  <m:mi>φ</m:mi>
+			  <m:mn>1</m:mn>
+			</m:msub></m:ci>
+		      <m:ci><m:msub>
+			  <m:mi>φ</m:mi>
+			  <m:mn>2</m:mn>
+			</m:msub></m:ci>
+		    </m:apply>
+		    <m:apply>
+		      <m:times/>
+		      <m:ci>ω</m:ci>
+		      <m:apply>
+			<m:plus/>
+			<m:ci><m:msub>
+			    <m:mi>τ</m:mi>
+			    <m:mn>1</m:mn>
+			  </m:msub></m:ci>
+			<m:ci><m:msub>
+			    <m:mi>τ</m:mi>
+			    <m:mn>2</m:mn>
+			  </m:msub></m:ci>
+		      </m:apply>
+		    </m:apply>
+		  </m:apply>
+		  <m:cn>2</m:cn>
+		</m:apply>
+	      </m:apply>
+	    </m:apply>
+	  </m:apply>
+	</m:math>      
+      </equation>
+      <link target-id="s1e1"/> shows that the sum of two sinusoids that
+      are out of phase is just another sinusoid with an amplitude
+      directly related to the phase difference.  Our goal is to
+      adjust the phase difference by adding time delays to the
+      incoming signals so as to maximize the amplitude of the
+      output.  The maximum occurs when the phase difference is zero,
+      because the signals will add constructively.  Once the maximum
+      is found, the time delays used to achieve it tell us from
+      which direction the signals originated.
+    </para>
+    <para id="s1p2">
+      Since we are working with discrete-time signals, the time
+      delays we tried were limited by the sampling frequency of the
+      DSP boards, which is 48 kHz.  By dividing the desired time
+      delay by that sampling period and rounding to the nearest
+      integer, we converted our trial time delays into indices that
+      could be used to select the correct sample out of the buffer.
+    </para>
+    <para id="s1p3">
+      So, the algorithm for delay-and-sum beamforming is
+      straightforward, but there is room for a little bit of
+      creativity in finding the amplitude of the summed sinusoids.
+      We experimented with two methods to accomplish that task.  We
+      will call the first method "amplitude extraction," and the
+      second "signal integration."
+    </para>
+    <figure id="s1f1">
+      <title>Amplitude Extraction Flow Diagram</title>
+      <media id="idm12838528" alt=""><image src="../../media/figure5.jpg" mime-type="image/jpeg"/></media>
+    </figure>	   
+    <para id="s1p4">		      
+      A flow diagram for the amplitude extraction method is shown in
+      <link target-id="s1f1"/>.  We split the signal into two parts and
+      multiply one part by 
+      <m:math>
+	<m:apply>
+	  <m:sin/>
+	  <m:apply>
+	    <m:times/>
+	    <m:ci>ω</m:ci>
+	    <m:ci>t</m:ci>
+	  </m:apply>
+	</m:apply>
+      </m:math> and the other by
+      <m:math>
+	<m:apply>
+	  <m:cos/>
+	  <m:apply>
+	    <m:times/>
+	    <m:ci>ω</m:ci>
+	    <m:ci>t</m:ci>
+	  </m:apply>
+	</m:apply>
+      </m:math>.  By low-pass filtering the results, we obtain the
+      DC part of the signal which contains the amplitude
+      information.  This algorithm has the obvious disadvantage that
+      it is dependent on knowing the frequency of the incoming
+      signal so that the correct w is used in the multiplication
+      step.  In spite of that, we were originally selected it for
+      implementation on the DSP board because it showed extremely
+      robust performance in the presence of loud noise.  Adding
+      gaussian white noise with a variance of 1 to a signal in the
+      range 
+      <m:math>
+	<m:interval>
+	  <m:cn>-1</m:cn>
+	  <m:cn>1</m:cn>
+	</m:interval>
+      </m:math> had no affect on the performance of the beamformer
+      in our Matlab simulation.  Unfortunently, the algorithm is too
+      slow to be used in real time.  Evaluating two low-pass filters
+      for every time delay combination tried was simply not
+      practical.
+    </para>
+    <para id="s1p5">
+      The signal integration method is much simpler computationally,
+      which made it a better choice for our final implementation.
+      We only had to square the beamformer output to make all the
+      numbers positive, and sum the results over approximately one
+      cycle of the incoming signal.  The sum is similar to an
+      integral over one period of the signal, except that the
+      samples aren't multiplied by the sampling period to make an
+      "area." Our matlab simulation showed that the algorithm should
+      work, but that it is somewhat more sensitive to noise than
+      amplitude extraction.
+    </para>
+    <para id="s1p6">
+      We were unable to try either of our Matlab simulations with
+      real signals recorded from our microphone array because we had
+      difficulty making stereo recordings.  The computers we used
+      defaulted to recording from the microphone input (which is
+      mono) instead of the line-in input, and we didn't have
+      administrator access to change the settings.
+    </para>
+  </content>
+  
+</document>

@@ -1,0 +1,77 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Design Decisions for Audio Localization Implementation</title>
+  <metadata><md:content-id>undefined</md:content-id><md:title/><md:uuid>e4420e08-ffb2-49bf-870a-1c85e3913bb3</md:uuid>
+</metadata>
+
+  <content>
+    <para id="p1">
+      With the <link document="">theory</link> out of the way, we
+      have to face the real world and set more constraints.   
+    </para>
+    <section id="s1">
+      <title>The Number of Microphones</title>
+      <para id="s1p1">
+	In this project, we are using the TI TMS320C6211 DSK board.
+	This board has two channels that sample at 48 kHz and another
+	channel that samples at 8 kHz.  Since we are not interpolating
+	our signals, the sampling frequency is increasingly critical,
+	so we can only use <emphasis>two microphones</emphasis>.
+	<link target-id="s1p1f1"/> shows what happens to the beampattern
+	when we use reduced sampling frequency.
+      </para>
+      <figure id="s1p1f1">
+	<title>Beampattern with Reduced Sampling Frequency</title>
+	<media id="idm3972416" alt=""><image src="../../media/figure9.jpg" mime-type="image/jpeg"/></media>
+      </figure>
+    </section>
+    <section id="s2">
+      <title>Array Spacing</title>
+      <para id="s2p1">
+	In order to find the best array spacing (theoretically), we
+	have to go through a few calculations.  In our most extreme
+	case, the signals will be hitting our array from 180°.
+	This gives us perfect destructive interference, as our phase
+	difference will be <m:math><m:pi/></m:math>.  Therefore, we
+	only need half of the wavelength:
+	<equation id="s2p1e1">
+	  <m:math>
+	    <m:apply>
+	      <m:eq/>
+	      <m:ci>d</m:ci>
+	      <m:apply>
+		<m:divide/>
+		<m:ci>λ</m:ci>
+		<m:cn>2</m:cn>
+	      </m:apply>
+	    </m:apply>
+	  </m:math>
+	</equation>
+	We can find λ by dividing the frequency of our sine
+	wave (500 Hz) by the speed of sound (346.287 m/s):
+	<equation id="s2p2e2">
+	  <m:math>
+	    <m:apply>
+	      <m:eq/>
+	      <m:ci>λ</m:ci>
+	      <m:apply>
+		<m:divide/>
+		<m:ci>c</m:ci>
+		<m:ci>f</m:ci>
+	      </m:apply>
+	      <m:apply>
+		<m:divide/>
+
+		<m:cn>346.287</m:cn>
+		<m:cn>500</m:cn>
+	      </m:apply>
+	      <m:cn>0.69</m:cn>
+	    </m:apply>
+	  </m:math>
+	</equation>
+	and our array spacing <m:math><m:ci>d</m:ci></m:math> ends up
+	being 0.345 m.
+      </para>
+    </section>
+  </content>
+  
+</document>

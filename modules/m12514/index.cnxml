@@ -1,0 +1,39 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Hardware Implementation for Audio Localization</title>
+  <metadata><md:content-id>undefined</md:content-id><md:title/><md:uuid>adb72fcc-97ce-472a-a69d-be08e082fea2</md:uuid>
+</metadata>
+
+  <content>
+    <section id="s1">
+      <title>TI TMS320C6211 DSK Board</title>
+      <para id="s1p1">
+	You can find a description of the board on the <link url="http://www.ti.com">TI website</link>.
+      </para>
+      <para id="s1p2">
+	To receive the signals, we decided to use the McBSP1 receive
+	interrupt so we could read the values from our two 16 bit
+	channels simultaneously.
+      </para>
+    </section>
+    <section id="s2">
+      <title>Microphone Array</title>
+      <figure id="s2f1">
+	<title>The Microphones and the Circuit</title>
+	<media id="idp1184320" alt=""><image src="../../media/figure13.JPG" mime-type="image/jpeg"/></media>
+      </figure>
+      <para id="s2p1">
+	As shown in <link target-id="s2f1"/>, we used two electret
+	microphones spaced 10 cm apart.  Each microphone was amplified
+	with identical non-inverting op-amp circuits (<link url="http://www.njr.co.jp/pdf/de/de05001.pdf">LM386</link>),
+	as shown in <link target-id="s2f2"/>.  This circuit includes a
+	low-voltage audio power amplifier and internal feedback with
+	fixed gain.
+      </para>
+      <figure id="s2f2">
+	<title>The Microphone Amplifier Circuit</title>
+	<media id="idp9806880" alt=""><image src="../../media/figure14.jpg" mime-type="image/jpeg"/></media>
+      </figure>
+    </section>
+  </content>
+  
+</document>

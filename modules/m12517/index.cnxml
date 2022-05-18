@@ -1,0 +1,318 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml">
+  <title>Appendix for Audio Localization Project</title>
+  <metadata><md:content-id>undefined</md:content-id><md:title/><md:uuid>790e2a5f-f24b-4f3a-9984-39ec97daa677</md:uuid>
+</metadata>
+
+  <content>
+    <section id="s1">
+      <title>Matlab Code</title>
+      <list id="l1">
+	<item>new_sim2:
+      <code display="block" id="idm1134272">
+function new_sim2(theta_true)
+% Values, Vectors, and a Matrix
+%theta_true = pi./2;
+degree = 32;
+
+c = 346.287;                    % speed of sound in air
+N = 150;                        % length of the sample buffer
+Fs = 48000;                     % sampling frequency
+f = 500;                       % frequency of sine wave
+M = 2;                          % number of microphones
+dist = .1;
+t = [0:N-1]./Fs;                % time axis
+m = (M-1)./2;                   % array center
+x = dist.*[-m:m];               % microphone location on the x axis
+omega = 2*pi*f;                 % commonly used value
+
+theta_test = [1:2:2*degree-1]*pi/(2*degree); % test vector of theta values
+%theta_test = pi./2;
+divisor = degree/8;             % region divisor
+length_t = length(theta_test);   % length of the delay vector
+A = zeros(1,length_t);           % initialize A vector
+
+delay_true = x.*cos(theta_true)./c;  % actual delay
+delay_test = x'*cos(theta_test)./c;  % test matrix of delay values
+samples = round(2.*delay_test*Fs)./2;        % number of samples to shift in testing
+index = samples - ones(M,1)*min(samples) + 1;
+
+
+% Signal Simulation
+
+for j = 1:M
+    y(j,:) = sin(omega*(t-delay_true(j)));
+end
+
+% Region Approximation
+
+for i = [1:length_t]
+    for j = [1:M]
+        y_delay(j,:) = y(j,[index(j,i)+50:index(j,i)+100]);    %delay y1 by the 1,i value using index
+    end
+    z = sum(y_delay);
+
+    A(i) = sum(z.^2);
+end
+
+aa = find(A == max(A));
+region = floor(aa(1)./divisor)
+theta_range = [region-1 region]*pi/8;
+if(0)
+figure
+plot(theta_test/pi,A)
+end
+	  </code>
+	</item>
+	<item>sim_input3:
+	  <code display="block" id="idm573168">
+function [region,theta_range] = sim_input3(theta_true,degree)
+
+% Values, Vectors, and a Matrix
+
+c = 346.287;                    % speed of sound in air
+N = 150;                        % length of the sample buffer
+Fs = 44100;                     % sampling frequency
+f = 500;                       % frequency of sine wave
+M = 2;                          % number of microphones
+%dist = .32;                     % distance between microphones
+dist = .5;
+t = [0:N-1]./Fs;                % time axis
+m = (M-1)./2;                   % array center
+x = dist.*[-m:m];               % microphone location on the x axis
+cutoff = 50;                    % cutoff frequency of filter
+omega = 2*pi*f;                 % commonly used value
+theta_test = [1:2:2*degree-1]*pi/(2*degree); % test vector of theta values
+divisor = degree/8;             % region divisor
+length_t = length(theta_test);   % length of the delay vector
+A = zeros(1,length_t);           % initialize A vector
+B = fir1(40,cutoff/Fs,'low');        % lowpass filter
+delay_true = x.*cos(theta_true)./c;  % actual delay
+delay_test = x'*cos(theta_test)./c;  % test matrix of delay values
+samples = round(2.*delay_test*Fs)./2;        % number of samples to shift in testing
+index = samples - ones(M,1)*min(samples) + 1;
+cos_base = cos(omega*t(1:N));
+sin_base = sin(omega*t(1:N));
+SNR = 1000;
+noise1 = randn(1,N)/SNR;
+noise2 = randn(1,N)/SNR;
+
+% Signal Simulation
+
+y1 = sin(omega*(t-delay_true(1))) + noise1;
+y2 = sin(omega*(t-delay_true(2))) + noise2;
+
+% Region Approximation
+
+for i = [1:length_t]
+    y1_sample = y1(index(1,i):index(1,i)+40);    %delay y1 by the 1,i value using index
+    y2_sample = y2(index(2,i):index(2,i)+40);
+    z = y1_sample + y2_sample;
+    z_cos = z.*cos_base(1:41);
+    z_sin = z.*sin_base(1:41);
+    
+    z_cos_filter = sum(fliplr(z_cos).*B);
+    z_sin_filter = sum(fliplr(z_sin).*B);
+   
+    A(i) = z_sin_filter^2 + z_cos_filter^2;
+end
+
+% figure
+% plot(theta_test,A);
+% title(theta_true)
+
+aa = find(A == max(A));
+region = floor(aa(1)./divisor);
+
+if(0)
+theta_range = [region-1 region]*pi/8;
+figure
+plot(theta_test/pi,A)
+end
+	  </code>
+	</item>
+      </list>
+    </section>
+    <section id="s2">
+      <title>C Code</title>
+      <list id="s2l1">
+	<item>index.h:
+	  <code display="block" id="idm365904">
+short index[2][32] = {
+	{0x0001, 0x0001, 0x0001,0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0002,	0x0003,	0x0004,	0x0005,	0x0006,	0x0008,	0x0009,	0x000A,	0x000A,	0x000B,	0x000C,	0x000D,	0x000D,	0x000D,	0x000E,	0x000E},
+	{0x000E, 0x000E, 0x000D,0x000D,	0x000D,	0x000C,	0x000B,	0x000A,	0x000A,	0x0009,	0x0008,	0x0006,	0x0005,	0x0004,	0x0003,	0x0002,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001,	0x0001}
+};
+ 
+	  </code>
+	</item>
+	<item>loop_intr_pcm2.c:
+	  <code display="block" id="idm2259344">
+
+#include "index.h"
+
+#define N 100			//sample buffer length
+#define N2 128			//averaging buffer length
+#define DEGREE 32		//number of theta test values to try
+#define SUMSAMP 70		//number of theta test values to try
+
+float Fs = 16000.0;		//irrelevant since jumper in 3-4
+
+int* lights = (int*)0x90080000;
+
+short buffer1[N] = {0};
+short buffer2[N] = {0};
+int buffer3[N2] = {0};
+int buf_full = 0;
+int buf_index = 0;
+
+interrupt void c_int12()      //McBSP1 receive ISR
+{
+	
+	int sample = input_leftright_sample();
+   	
+   buffer1[buf_index] = (short)(sample &gt;&gt; 16);
+   buffer2[buf_index] = (short)sample;
+
+	buf_index++;
+	if(buf_index == N) {
+		buf_index = 0;
+		buf_full = 1;
+	}
+   	   	
+	return;			//return from interrupt
+}
+
+void main()
+{                           
+	int i;  
+	int j;   
+	int k = 0;
+	int z, test_amp;
+	int region;
+	int out;
+	int sum = 0;
+	
+	int max_theta_index = 0;
+	int max_amplitude = -1;
+	
+	for(k=0;k&lt;N2;k++) buffer3[k] = 0;
+	k = 0;
+
+	comm_intr();            //init DSK, codec, McBSP
+  	while(1) {
+		if(buf_full) {
+			buf_full = 0;
+			max_amplitude = -1;
+			
+   			for(i=0; i&lt;DEGREE; i++) {
+				test_amp = 0;
+
+				for(j=0; j&lt;SUMSAMP; j++) {
+   					z = buffer1[index[0][i]+j] + buffer2[index[1][i]+j];
+					test_amp += (z * z) &gt;&gt; 15;
+   				}
+   			
+   				if(test_amp &gt; max_amplitude) {
+   					max_amplitude = test_amp;
+   					max_theta_index = i;
+				}
+   			}
+
+   			region = max_theta_index &gt;&gt; 2;
+   			sum -= buffer3[k];
+   			buffer3[k++] = region;
+   			sum += region;
+   			
+   			if(k == N2) {
+   				k = 0;
+   				out = sum &gt;&gt; 7;
+   				/*if(out &gt; 3)
+   					out = 0;
+   				else
+   					out = 7;*/
+   				*lights = out &lt;&lt; 24;
+   			}
+   		}
+	}
+}
+	  </code>
+	</item>
+	<item>vectors_11.asm:
+	  <code display="block" id="idm1847856">
+*Vectors_11.asm Vector file for interrupt-driven program
+
+    		.ref 		_c_int12    ;ISR used in C program
+    		.ref     	_c_int00	;entry address
+		.sect   	"vectors"	;section for vectors
+RESET_RST:	mvkl	.S2	_c_int00,B0	;lower 16 bits --&gt; B0
+    		mvkh  .S2   _c_int00,B0 ;upper 16 bits --&gt; B0
+    		B	.S2	B0 		;branch to entry address
+		NOP      			;NOPs for remainder of FP
+		NOP				;to fill 0x20 Bytes
+		NOP
+		NOP
+		NOP	
+NMI_RST: 	.loop 8
+		NOP    			;fill with 8 NOPs
+		.endloop 
+RESV1:	.loop 8
+		NOP 				
+		.endloop
+RESV2:	.loop 8
+		NOP				
+		.endloop
+INT4: 	.loop 8
+		NOP  				
+		.endloop
+INT5: 	.loop 8
+		NOP
+		.endloop
+INT6:  	.loop 8
+		NOP
+		.endloop
+INT7:		.loop 8
+		NOP
+		.endloop
+INT8: 	.loop 8
+		NOP
+		.endloop
+INT9:		.loop 8
+		NOP
+		.endloop
+INT10:	.loop 8
+		NOP
+		.endloop
+
+INT11: 	.loop 8	
+		NOP
+		.endloop
+
+INT12: 	b 	_c_int12		;branch to ISR
+		.loop 7	
+		NOP
+		.endloop
+		
+INT13:	.loop 8
+		NOP
+		.endloop
+INT14: 	.loop 8
+		NOP
+		.endloop
+INT15: 	.loop 8
+		NOP
+		.endloop
+
+	  </code>
+	</item>
+      </list>
+    </section>
+    <section id="s3">
+      <title>Project Executable Files</title>
+      <list id="s3l1">
+	<item><link resource="project.out">project.out</link></item>
+	<item><link resource="project.paf">project.paf</link></item>
+	<item><link resource="project.pjt">project.pjt</link></item>
+      </list>
+    </section>
+  </content>
+  
+</document>
